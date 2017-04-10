@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import argparse as ap,sys,os
+sys.path.append(os.getcwd())
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path+"/../")
+from src import load
+from src import stats
+def make_parser():
+    parser = ap.ArgumentParser()
+    parser.add_argument('-i', '--inputbedfile', required=True,help="this is a bed file where the fourth column is either 0 or 1")
+    parser.add_argument('-k', '--db', required=True,help="this is a diretory of bed files")
+    parser.add_argument('-o', '--output', required=True,help="this is the out file")
+    return parser
+def check_inputs(args,parser):
+    assert os.path.exists(args.db), "-k doesn't exist"
+    assert os.path.isfile(args.inputbedfile), "-i doesn't exist"
+    return True
+def main():
+	parser  		= make_parser()
+	args    		= parser.parse_args()
+	PASS 			= check_inputs(args,parser)
+	EXIT,IN 		= load._4bed(args.inputbedfile)
+	if EXIT:
+		print "exiting...error in input bed file"
+	DB 				= load._3beds(args.db)
+	if not len(DB):
+		print "exiting...was unable to load any files from -k"
+
+	stats.eval(IN,DB,args.output)
+
+
+
+if __name__ == "__main__":
+	main()
